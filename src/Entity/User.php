@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -17,20 +19,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['getUsers'])] 
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    #[Groups(['getAdvices'])]
+   #[ORM\Column(length: 180)]
+    #[Groups(['getAdvices', 'getUsers'])]
+    #[Assert\NotBlank(message: "L'adresse email est obligatoire.")]
+    #[Assert\Email(message: "L'adresse email '{{ value }}' n'est pas valide.")]
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Groups(['getAdvices', 'getUsers'])]
     private array $roles = [];
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Le mot de passe est obligatoire.")]
+    #[Assert\Length(min: 6, minMessage: "Le mot de passe doit contenir au moins {{ limit }} caractères.")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getAdvices'])]
+    #[Groups(['getAdvices', 'getUsers'])]
+    #[Assert\NotBlank(message: "La ville est obligatoire.")]
+    #[Assert\Length(min: 2, minMessage: "Le nom de la ville est trop court.")]
     private ?string $city = null;
 
     #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Advice::class)]
@@ -127,5 +137,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+
+    
+    /**
+     * Méthode getUsername qui permet de retourner le champ qui est utilisé pour l'authentification.
+     *
+     * @return string
+     */
+    public function getUsername(): string {
+        return $this->getUserIdentifier();
     }
 }

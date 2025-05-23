@@ -6,6 +6,7 @@ use App\Entity\Advice;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+
 /**
  * @extends ServiceEntityRepository<Advice>
  */
@@ -16,28 +17,36 @@ class AdviceRepository extends ServiceEntityRepository
         parent::__construct($registry, Advice::class);
     }
 
-    //    /**
-    //     * @return Conseil[] Returns an array of Conseil objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
 
-    //    public function findOneBySomeField($value): ?Conseil
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+
+public function findByMonth(int $month): array
+{
+    $conn = $this->getEntityManager()->getConnection();
+
+    $sql = 'SELECT * FROM advice WHERE JSON_CONTAINS(month, :month_json)';
+    $stmt = $conn->prepare($sql);
+    $resultSet = $stmt->executeQuery(['month_json' => json_encode([$month])]);
+
+    return $resultSet->fetchAllAssociative();
+}
+
+
+// src/Repository/AdviceRepository.php
+
+public function findByCurrentMonth(int $month): array
+{
+    $conn = $this->getEntityManager()->getConnection();
+
+    $sql = '
+        SELECT * FROM advice a
+        WHERE JSON_CONTAINS(a.month, :month, "$")
+    ';
+
+    $stmt = $conn->prepare($sql);
+    $resultSet = $stmt->executeQuery(['month' => json_encode($month)]);
+
+    return $resultSet->fetchAllAssociative();
+}
+
+
 }

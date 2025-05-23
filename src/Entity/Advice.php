@@ -6,6 +6,7 @@ use App\Repository\AdviceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
@@ -18,10 +19,25 @@ class Advice
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['getAdvices'])]
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Length(
+        min: 5,
+        minMessage: "La description doit contenir au moins {{ limit }} caractères."
+    )]
     private ?string $description = null;
 
     #[ORM\Column(type: 'json')]
     #[Groups(['getAdvices'])]
+    #[Assert\NotBlank(message: "Le champ des mois est obligatoire.")]
+    #[Assert\Type(type: 'array', message: "Les mois doivent être fournis sous forme de tableau.")]
+    #[Assert\All([
+        new Assert\Type('integer'),
+        new Assert\Range(
+            min: 1,
+            max: 12,
+            notInRangeMessage: "Chaque mois doit être un entier entre {{ min }} et {{ max }}."
+        )
+    ])]
     private array $month = [];
 
     #[ORM\ManyToOne(inversedBy: 'advices')]

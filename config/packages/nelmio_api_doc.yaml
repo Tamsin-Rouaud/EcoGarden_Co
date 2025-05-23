@@ -1,9 +1,52 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: My App
-            description: This is an awesome app!
+            title: EcoGarden & Co API
+            description: Documentation de l’API REST d’EcoGarden & Co
             version: 1.0.0
-    areas: # to filter documented areas
-        path_patterns:
-            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+
+        components:
+            securitySchemes:
+                bearerAuth:
+                    type: apiKey
+                    in: header
+                    name: Authorization
+        security:
+            - bearerAuth: []
+
+        paths:
+            /api/auth:
+                post:
+                    operationId: postCredentialsItem
+                    tags:
+                        - Token
+                    summary: Permet d'obtenir le token JWT
+                    requestBody:
+                        description: Authentification par email et mot de passe
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        email:
+                                            type: string
+                                            example: admin@example.com
+                                        password:
+                                            type: string
+                                            example: password
+                    responses:
+                        '200':
+                            description: Retourne le token JWT
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            token:
+                                                type: string
+
+    areas:
+        default:
+            path_patterns:
+                - ^/api(?!/doc$)
