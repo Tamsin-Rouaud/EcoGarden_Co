@@ -2,27 +2,23 @@ nelmio_api_doc:
     documentation:
         info:
             title: EcoGarden & Co API
-            description: Documentation de l’API REST d’EcoGarden & Co
             version: 1.0.0
+            description: Documentation de l'API EcoGarden
 
         components:
             securitySchemes:
                 bearerAuth:
-                    type: apiKey
-                    in: header
-                    name: Authorization
-        security:
-            - bearerAuth: []
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
 
         paths:
             /api/auth:
                 post:
-                    operationId: postCredentialsItem
-                    tags:
-                        - Token
-                    summary: Permet d'obtenir le token JWT
+                    tags: [Authentification]
+                    summary: Obtenir un token JWT
                     requestBody:
-                        description: Authentification par email et mot de passe
+                        description: Authentification avec email et mot de passe
                         required: true
                         content:
                             application/json:
@@ -31,13 +27,22 @@ nelmio_api_doc:
                                     properties:
                                         email:
                                             type: string
-                                            example: admin@example.com
                                         password:
                                             type: string
-                                            example: password
+                                examples:
+                                    Utilisateur simple:
+                                        summary: Login utilisateur standard
+                                        value:
+                                            email: user@example.com
+                                            password: password
+                                    Administrateur:
+                                        summary: Login admin
+                                        value:
+                                            email: admin@example.com
+                                            password: adminpass
                     responses:
                         '200':
-                            description: Retourne le token JWT
+                            description: Retourne un token JWT
                             content:
                                 application/json:
                                     schema:
@@ -45,6 +50,9 @@ nelmio_api_doc:
                                         properties:
                                             token:
                                                 type: string
+                        '401':
+                            description: Identifiants invalides
+
 
     areas:
         default:

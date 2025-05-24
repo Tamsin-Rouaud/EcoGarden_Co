@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/conseil')]
+#[IsGranted('IS_AUTHENTICATED_FULLY')]
 class AdviceController extends AbstractController
 {
     #[OA\Get(
@@ -43,7 +44,7 @@ class AdviceController extends AbstractController
         return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
     }
 
-    #[IsGranted('ROLE_ADMIN')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[OA\Get(
         summary: 'Récupérer les conseils pour un mois donné',
         security: [['bearerAuth' => []]],
@@ -88,6 +89,7 @@ $jsonAdviceList = $serializer->serialize($advices, 'json', ['groups' => 'getAdvi
         ]
     )]
     #[Route('/{id}', name: 'detailAdvice', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function getDetailAdvice(Advice $advice, SerializerInterface $serializer): JsonResponse
     {
         $jsonAdvice = $serializer->serialize($advice, 'json', ['groups' => 'getAdvices']);
@@ -107,6 +109,7 @@ $jsonAdviceList = $serializer->serialize($advices, 'json', ['groups' => 'getAdvi
         ]
     )]
     #[Route('/{id}', name: 'deleteAdvice', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function deleteAdvice(Advice $advice, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($advice);
@@ -136,6 +139,7 @@ $jsonAdviceList = $serializer->serialize($advices, 'json', ['groups' => 'getAdvi
         ]
     )]
     #[Route('', name: 'createAdvice', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function createAdvice(
         Request $request,
         SerializerInterface $serializer,
@@ -190,6 +194,7 @@ $jsonAdviceList = $serializer->serialize($advices, 'json', ['groups' => 'getAdvi
         ]
     )]
     #[Route('/{id}', name: 'updateAdvice', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function updateAdvice(
         Request $request,
         SerializerInterface $serializer,
