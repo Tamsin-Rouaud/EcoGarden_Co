@@ -10,7 +10,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 
 /**
- * @extends ServiceEntityRepository<User>
+ * Repository personnalisé pour l'entité User.
+ *
+ * Implémente également PasswordUpgraderInterface afin de permettre
+ * la mise à jour automatique des mots de passe hachés si l'algorithme change.
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
@@ -20,41 +23,25 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Used to upgrade (rehash) the user's password automatically over time.
+     * Méthode utilisée automatiquement par Symfony pour mettre à jour
+     * le hash du mot de passe d’un utilisateur lorsque nécessaire (ex : changement d’algo).
+     *
+     * @param PasswordAuthenticatedUserInterface $user L'utilisateur à mettre à jour
+     * @param string $newHashedPassword Le nouveau mot de passe haché
      */
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof User) {
+            // Si ce n’est pas une instance de notre entité User, on lève une exception
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
         }
 
+        // Mise à jour du mot de passe dans l'entité
         $user->setPassword($newHashedPassword);
+        // Persistance et enregistrement immédiat en base de données
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
 
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

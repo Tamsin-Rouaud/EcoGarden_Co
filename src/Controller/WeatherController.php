@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Contrôleur pour l'API externe de la météo.
+ * Permet de récupérer la météo en fonction :
+ * - de la ville enregistrée dans le profil de l'utilisateur connecté
+ * - ou d'une ville spécifiée dans l'URL.
+ * Toutes les routes sont sécurisées et nécessitent une authentification (ROLE_USER ou ROLE_ADMIN).
+ */
 namespace App\Controller;
 
 use App\Service\WeatherService;
@@ -13,6 +19,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api/meteo')]
 class WeatherController extends AbstractController
 {
+    /**
+     * Récupère la météo pour la ville de l'utilisateur actuellement connecté.
+     * La ville doit être renseignée dans le champ "city" de son profil.
+     * Exemple de réponse : température, humidité, vent, etc.
+     */
     #[OA\Get(
         path: '/api/meteo',
         summary: 'Récupère la météo pour la ville de l’utilisateur connecté',
@@ -43,10 +54,12 @@ class WeatherController extends AbstractController
     {
         $user = $this->getUser();
 
+        // Si l'utilisateur ou sa ville n'est pas définie
         if (!$user || !$user->getCity()) {
             return new JsonResponse(['error' => 'Ville non définie pour l’utilisateur.'], Response::HTTP_NOT_FOUND);
         }
 
+        // Récupération de la météo via le service dédié
         $weather = $weatherService->getWeatherByCity($user->getCity());
 
         if (!$weather) {
@@ -56,6 +69,8 @@ class WeatherController extends AbstractController
         return new JsonResponse($weather);
     }
 
+
+    /** Récupère la météo d'une ville donnée, passée en paramètre d'URL. Permet à un utilisateur connecté de consulter la météo d'une autre ville que la sienne. */
     #[OA\Get(
         path: '/api/meteo/{city}',
         summary: 'Récupère la météo d’une ville spécifique',

@@ -1,48 +1,54 @@
 security:
+    # === CONFIGURATION DU HASHING DE MOT DE PASSE ===
     password_hashers:
+        # Symfony choisit automatiquement l'algorithme le plus sécurisé (bcrypt ou argon2i)
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
+    # === FOURNISSEUR D'UTILISATEURS ===
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\User
-                property: email
+                class: App\Entity\User     # Entité User utilisée pour l’authentification
+                property: email            # Utilisation de l'email comme identifiant unique
 
+    # === FIREWALLS : GESTION DES COMPORTEMENTS SELON LES ROUTES ===
     firewalls:
+        # Firewall désactivé pour les fichiers du profiler/dev
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        # Point d'entrée pour la connexion JWT
         login:
             pattern: ^/api/auth
             stateless: true
             json_login:
-                check_path: /api/auth
-                username_path: email
-                password_path: password
+                check_path: /api/auth                          # Chemin POST pour s’authentifier
+                username_path: email                           # Clé JSON utilisée pour le login
+                password_path: password                        # Clé JSON pour le mot de passe
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
+        # Firewall général pour toutes les routes de l'API
         api:
             pattern: ^/api
             stateless: true
-            jwt: ~
+            jwt: ~                                             # Activation du JWT via LexikJWTAuthenticationBundle
 
+    # === RESTRICTIONS D’ACCÈS PAR ROUTE ===
     access_control:
-    
-        - { path: ^/api/doc, roles: PUBLIC_ACCESS } 
-        - { path: ^/api/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/api/user, roles: PUBLIC_ACCESS }
-        - { path: ^/api/conseil, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }            # Documentation publique
+        - { path: ^/api/auth, roles: PUBLIC_ACCESS }           # Auth publique
+        - { path: ^/api/user, roles: PUBLIC_ACCESS }           # Création d’utilisateur ouverte aux anonymes
+        - { path: ^/api/conseil, roles: IS_AUTHENTICATED_FULLY } # Authentification requise pour accéder aux conseils
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }       # Toutes les autres routes API nécessitent un token valide
 
-
-
+# === CONFIGURATION SPÉCIALE POUR LES TESTS AUTOMATISÉS ===
 when@test:
     security:
         password_hashers:
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
-                cost: 4
+                cost: 4             # Réduction des coûts pour accélérer les tests
                 time_cost: 3
                 memory_cost: 10

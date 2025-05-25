@@ -11,12 +11,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AdviceRepository::class)]
 class Advice
 {
+    /**
+     * Identifiant unique du conseil.
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['getAdvices'])]
     private ?int $id = null;
 
+    /**
+     * Contenu du conseil.
+     * Obligatoire, au moins 5 caractères.
+     */
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['getAdvices'])]
     #[Assert\NotBlank(message: "La description est obligatoire.")]
@@ -26,6 +33,10 @@ class Advice
     )]
     private ?string $description = null;
 
+    /**
+     * Mois associés au conseil (1 à 12).
+     * Doit être un tableau d'entiers valides.
+     */
     #[ORM\Column(type: 'json')]
     #[Groups(['getAdvices'])]
     #[Assert\NotBlank(message: "Le champ des mois est obligatoire.")]
@@ -40,10 +51,15 @@ class Advice
     ])]
     private array $month = [];
 
+    /**
+     * Utilisateur (admin) ayant créé le conseil.
+     */
     #[ORM\ManyToOne(inversedBy: 'advices')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['getAdvices'])]
     private ?User $createdBy = null;
+
+    // Getters / Setters
 
     public function getId(): ?int
     {

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Contrôleur des conseils mensuels.
+ * Gère les routes sécurisées pour récupérer, créer, mettre à jour ou supprimer des conseils de jardinage.
+ * Accessible uniquement aux utilisateurs authentifiés, avec des droits spécifiques pour les administrateurs.
+ */
+
 namespace App\Controller;
 
 use App\Entity\Advice;
@@ -19,9 +25,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/conseil')]
-#[IsGranted('IS_AUTHENTICATED_FULLY')]
+#[IsGranted('IS_AUTHENTICATED_FULLY')] // Toutes les routes du contrôleur nécessitent une authentification
 class AdviceController extends AbstractController
 {
+    /** Retourne tous les conseils du mois en cours. */
     #[OA\Get(
         summary: 'Liste des conseils du mois en cours',
         security: [['bearerAuth' => []]],
@@ -40,9 +47,7 @@ class AdviceController extends AbstractController
         return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
     }
 
-
-
-
+    /** Retourne les conseils pour un mois spécifique. */
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     #[OA\Get(
         summary: 'Récupérer les conseils pour un mois donné',
@@ -74,7 +79,7 @@ class AdviceController extends AbstractController
 
 
 
-
+    /** Retourne le détail d’un conseil par ID.*/
     #[OA\Get(
         summary: 'Afficher un conseil par ID',
         security: [['bearerAuth' => []]],
@@ -97,9 +102,7 @@ class AdviceController extends AbstractController
         return new JsonResponse($jsonAdvice, Response::HTTP_OK, [], true);
     }
 
-
-
-
+    /** Supprime un conseil. Réservé aux administrateurs.*/
     #[OA\Delete(
         summary: 'Supprimer un conseil',
         security: [['bearerAuth' => []]],
@@ -125,7 +128,7 @@ class AdviceController extends AbstractController
     }
 
     
-
+    /** Crée un nouveau conseil. Réservé aux administrateurs. */
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Post(
         summary: 'Créer un nouveau conseil',
@@ -161,9 +164,8 @@ class AdviceController extends AbstractController
             }
             return new JsonResponse($errorMessages, Response::HTTP_BAD_REQUEST);
         }
-
+        // L'utilisateur connecté est automatiquement récupéré pour définir le créateur
         $user = $this->getUser();
-
         $advice->setCreatedBy($user);
 
         $em->persist($advice);
@@ -175,6 +177,7 @@ class AdviceController extends AbstractController
         return new JsonResponse($jsonAdvice, Response::HTTP_CREATED, ['Location' => $location], true);
     }
 
+    /** Met à jour un conseil existant. Réservé aux administrateurs. */
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Put(
         summary: 'Mettre à jour un conseil',
@@ -213,9 +216,8 @@ class AdviceController extends AbstractController
             return new JsonResponse($errorMessages, Response::HTTP_BAD_REQUEST);
         }
 
-        
+        // Mise à jour du créateur (utile si modifié par un admin pour le compte d’un autre)
         $user = $this->getUser();
-
         $updatedAdvice->setCreatedBy($user);
 
         $em->persist($updatedAdvice);

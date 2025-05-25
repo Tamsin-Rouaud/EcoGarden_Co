@@ -1,18 +1,24 @@
+# === PARAMÈTRES GÉNÉRAUX DE L'APPLICATION ===
 parameters:
+    # Clé API injectée depuis le fichier .env pour l’API OpenWeatherMap
     openweather_api_key: '%env(OPENWEATHERMAP_API_KEY)%'
 
+# === CONFIGURATION DES SERVICES ===
 services:
     _defaults:
-        autowire: true
-        autoconfigure: true
+        autowire: true          # Symfony injecte automatiquement les dépendances des services
+        autoconfigure: true     # Symfony enregistre automatiquement les services utiles (ex : contrôleurs, subscribers, etc.)
 
+    # Déclaration de tous les services dans le dossier src/
     App\:
         resource: '../src/'
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+            - '../src/DependencyInjection/'  # Ces classes ne sont pas des services
+            - '../src/Entity/'               # Les entités Doctrine ne sont pas des services
+            - '../src/Kernel.php'            # Le noyau Symfony ne doit pas être considéré comme un service à injecter
 
+    # Configuration explicite du service WeatherService
     App\Service\WeatherService:
         arguments:
+            # On injecte ici la clé API comme argument nommé ($openWeatherKey dans le constructeur)
             $openWeatherKey: '%openweather_api_key%'
