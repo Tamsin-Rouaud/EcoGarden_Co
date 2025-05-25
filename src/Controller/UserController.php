@@ -22,7 +22,7 @@ class UserController extends AbstractController
 {
     #[OA\Post(summary: 'Créer un nouvel utilisateur', tags: ['Utilisateur'], requestBody: new OA\RequestBody( required: true, content: new OA\JsonContent( required: ['email', 'password', 'city'], properties: [
                     new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
-                    new OA\Property(property: 'password', type: 'string', example: 'password'),
+                    new OA\Property(property: 'password', type: 'string', example: 'password123'),
                     new OA\Property(property: 'city', type: 'string', example: 'Marseille'),
                 ]
             )
@@ -90,6 +90,7 @@ class UserController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Utilisateur mis à jour'),
             new OA\Response(response: 400, description: 'Erreur de validation'),
+            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
             new OA\Response(response: 404, description: 'Utilisateur non trouvé')
         ]
     )]
@@ -135,6 +136,8 @@ class UserController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 204, description: 'Utilisateur supprimé'),
+            new OA\Response(response: 400, description: 'Erreur de validation'),
+            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
             new OA\Response(response: 404, description: 'Utilisateur non trouvé')
         ]
     )]

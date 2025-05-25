@@ -31,10 +31,10 @@ nelmio_api_doc:
                                             type: string
                                 examples:
                                     Utilisateur simple:
-                                        summary: Login utilisateur standard
+                                        summary: Login utilisateur
                                         value:
                                             email: user@example.com
-                                            password: password
+                                            password: password123
                                     Administrateur:
                                         summary: Login admin
                                         value:
@@ -50,8 +50,12 @@ nelmio_api_doc:
                                         properties:
                                             token:
                                                 type: string
+                        '400':
+                            description: Demande mal formulée
                         '401':
                             description: Identifiants invalides
+                        '404':
+                            description: Utilisateur non trouvé
 
 
     areas:
