@@ -28,107 +28,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[IsGranted('IS_AUTHENTICATED_FULLY')] // Toutes les routes du contrôleur nécessitent une authentification
 class AdviceController extends AbstractController
 {
-    /** Retourne tous les conseils du mois en cours. */
-    #[OA\Get(
-        summary: 'Liste des conseils du mois en cours',
-        security: [['bearerAuth' => []]],
-        tags: ['Conseil'],
-        responses: [
-            new OA\Response(response: 200, description: 'Liste de conseils du mois courant'),
-            new OA\Response(response: 401, description: 'Non authentifié')
-        ]
-    )]
-    #[Route('', name: 'advices', methods: ['GET'])]
-    public function getAdviceList(AdviceRepository $adviceRepository, SerializerInterface $serializer ): JsonResponse {
-        $currentMonth = (int) date('n');
-        $adviceList = $adviceRepository->findByMonth($currentMonth);
-        $jsonAdviceList = $serializer->serialize($adviceList, 'json', ['groups' => 'getAdvices']);
 
-        return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
-    }
-
-    /** Retourne les conseils pour un mois spécifique. */
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    #[OA\Get(
-        summary: 'Récupérer les conseils pour un mois donné',
-        security: [['bearerAuth' => []]],
-        tags: ['Conseil'],
-        parameters: [
-            new OA\Parameter(name: 'month', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        responses: [
-            new OA\Response(response: 200, description: 'Conseils du mois'),
-            new OA\Response(response: 400, description: 'Mois invalide'),
-            new OA\Response(response: 401, description: 'Non authentifié'),
-        ]
-    )]
-    #[Route('/mois/{month}', name: 'getAdviceByMonth', requirements: ['month' => '\d+'], methods: ['GET'])]
-    public function getAdviceByMonth(int $month, AdviceRepository $adviceRepository, SerializerInterface $serializer ): JsonResponse {
-        if ($month < 1 || $month > 12) {
-            throw new BadRequestHttpException("Mois invalide. Il doit être entre 1 et 12.");
-        }
-
-        $data = $adviceRepository->findByMonth($month);
-
-        $advices = array_map(fn($row) => $adviceRepository->find($row['id']), $data);
-
-        $jsonAdviceList = $serializer->serialize($advices, 'json', ['groups' => 'getAdvices']);
-
-        return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
-    }
-
-
-
-    /** Retourne le détail d’un conseil par ID.*/
-    #[OA\Get(
-        summary: 'Afficher un conseil par ID',
-        security: [['bearerAuth' => []]],
-        tags: ['Conseil'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        responses: [
-            new OA\Response(response: 200, description: 'Détail du conseil'),
-            new OA\Response(response: 401, description: 'Non authentifié'),
-            new OA\Response(response: 404, description: 'Non trouvé')
-        ]
-    )]
-    #[Route('/{id}', name: 'detailAdvice', methods: ['GET'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function getDetailAdvice(Advice $advice, SerializerInterface $serializer): JsonResponse
-    {
-        $jsonAdvice = $serializer->serialize($advice, 'json', ['groups' => 'getAdvices']);
-
-        return new JsonResponse($jsonAdvice, Response::HTTP_OK, [], true);
-    }
-
-    /** Supprime un conseil. Réservé aux administrateurs.*/
-    #[OA\Delete(
-        summary: 'Supprimer un conseil',
-        security: [['bearerAuth' => []]],
-        tags: ['Conseil'],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
-        responses: [
-            new OA\Response(response: 204, description: 'Conseil supprimé'),
-            new OA\Response(response: 400, description: 'Erreur de validation'),
-            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
-            new OA\Response(response: 401, description: 'Non authentifié'),
-        ]
-    )]
-    #[Route('/{id}', name: 'deleteAdvice', methods: ['DELETE'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function deleteAdvice(Advice $advice, EntityManagerInterface $em): JsonResponse
-    {
-        $em->remove($advice);
-        $em->flush();
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    
-    /** Crée un nouveau conseil. Réservé aux administrateurs. */
+     /** Crée un nouveau conseil. Réservé aux administrateurs. */
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Post(
         summary: 'Créer un nouveau conseil',
@@ -177,6 +78,61 @@ class AdviceController extends AbstractController
         return new JsonResponse($jsonAdvice, Response::HTTP_CREATED, ['Location' => $location], true);
     }
 
+
+
+    /** Retourne tous les conseils du mois en cours. */
+    #[OA\Get(
+        summary: 'Liste des conseils du mois en cours',
+        security: [['bearerAuth' => []]],
+        tags: ['Conseil'],
+        responses: [
+            new OA\Response(response: 200, description: 'Liste de conseils du mois courant'),
+            new OA\Response(response: 401, description: 'Non authentifié')
+        ]
+    )]
+    #[Route('', name: 'advices', methods: ['GET'])]
+    public function getAdviceList(AdviceRepository $adviceRepository, SerializerInterface $serializer ): JsonResponse {
+        $currentMonth = (int) date('n');
+        $adviceList = $adviceRepository->findByMonth($currentMonth);
+        $jsonAdviceList = $serializer->serialize($adviceList, 'json', ['groups' => 'getAdvices']);
+
+        return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
+    }
+
+
+    
+    /** Retourne les conseils pour un mois spécifique. */
+
+    #[OA\Get(
+        summary: 'Récupérer les conseils pour un mois donné',
+        security: [['bearerAuth' => []]],
+        tags: ['Conseil'],
+        parameters: [
+            new OA\Parameter(name: 'mois', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Conseils du mois'),
+            new OA\Response(response: 400, description: 'Mois invalide'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
+    #[Route('/{mois}', name: 'getAdviceByMonth', requirements: ['mois' => '\d+'], methods: ['GET'])]
+    public function getAdviceByMonth(int $mois, AdviceRepository $adviceRepository, SerializerInterface $serializer ): JsonResponse {
+        if ($mois < 1 || $mois > 12) {
+            throw new BadRequestHttpException("Mois invalide. Il doit être entre 1 et 12.");
+        }
+
+        $data = $adviceRepository->findByMonth($mois);
+
+        $advices = array_map(fn($row) => $adviceRepository->find($row['id']), $data);
+
+        $jsonAdviceList = $serializer->serialize($advices, 'json', ['groups' => 'getAdvices']);
+
+        return new JsonResponse($jsonAdviceList, Response::HTTP_OK, [], true);
+    }
+
+
+    
     /** Met à jour un conseil existant. Réservé aux administrateurs. */
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Put(
@@ -225,4 +181,31 @@ class AdviceController extends AbstractController
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
+
+    
+    /** Supprime un conseil. Réservé aux administrateurs.*/
+    #[OA\Delete(
+        summary: 'Supprimer un conseil',
+        security: [['bearerAuth' => []]],
+        tags: ['Conseil'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 204, description: 'Conseil supprimé'),
+            new OA\Response(response: 400, description: 'Erreur de validation'),
+            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
+    #[Route('/{id}', name: 'deleteAdvice', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function deleteAdvice(Advice $advice, EntityManagerInterface $em): JsonResponse
+    {
+        $em->remove($advice);
+        $em->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
 }

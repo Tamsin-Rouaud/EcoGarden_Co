@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/meteo')]
+#[IsGranted('IS_AUTHENTICATED_FULLY')]
 class WeatherController extends AbstractController
 {
     /**
@@ -32,23 +33,13 @@ class WeatherController extends AbstractController
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Météo actuelle pour la ville de l’utilisateur',
-                content: new OA\JsonContent(
-                    example: [
-                        "city" => "Marseille",
-                        "temperature" => 22.5,
-                        "description" => "ensoleillé",
-                        "humidity" => 56,
-                        "wind_speed" => 3.4
-                    ]
-                )
-            ),
+                description: 'Météo actuelle pour la ville de l’utilisateur'),
             new OA\Response(response: 400, description: 'Demande mal formulée'),
             new OA\Response(response: 401, description: 'Utilisateur non authentifié'),
             new OA\Response(response: 404, description: 'Ville non trouvée ou météo indisponible')
         ]
     )]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+
     #[Route('', name: 'get_weather_by_user_city', methods: ['GET'])]
     public function getWeatherByUserCity(WeatherService $weatherService): JsonResponse
     {
@@ -72,42 +63,33 @@ class WeatherController extends AbstractController
 
     /** Récupère la météo d'une ville donnée, passée en paramètre d'URL. Permet à un utilisateur connecté de consulter la météo d'une autre ville que la sienne. */
     #[OA\Get(
-        path: '/api/meteo/{city}',
+        path: '/api/meteo/{ville}',
         summary: 'Récupère la météo d’une ville spécifique',
         security: [['bearerAuth' => []]],
         tags: ['Météo'],
         parameters: [
             new OA\Parameter(
-                name: 'city',
+                name: 'ville',
                 in: 'path',
-                required: true,
+                required: false,
                 description: 'Nom de la ville',
-                schema: new OA\Schema(type: 'string', example: 'Paris')
+                schema: new OA\Schema(type: 'string')
             )
         ],
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Météo actuelle pour la ville spécifiée',
-                content: new OA\JsonContent(
-                    example: [
-                        "city" => "Paris",
-                        "temperature" => 19.2,
-                        "description" => "nuageux",
-                        "humidity" => 63,
-                        "wind_speed" => 4.1
-                    ]
-                )
-            ),
+                description: 'Météo actuelle pour la ville spécifiée' ),
             new OA\Response(response: 400, description: 'Demande mal formulée'),
             new OA\Response(response: 401, description: 'Utilisateur non authentifié'),
             new OA\Response(response: 404, description: 'Ville non trouvée ou météo indisponible')
         ]
     )]
-    #[Route('/{city}', name: 'get_weather_by_city', methods: ['GET'])]
-    public function getWeatherByCity(string $city, WeatherService $weatherService): JsonResponse
+    #[Route('/{ville}', name: 'get_weather_by_city', methods: ['GET'])]
+public function getWeather(?string $ville = null, WeatherService $weatherService)
+: JsonResponse
     {
-        $weather = $weatherService->getWeatherByCity($city);
+        $weather = $weatherService->getWeatherByCity($ville);
 
         if (!$weather) {
             return new JsonResponse(['error' => 'Météo introuvable pour cette ville.'], Response::HTTP_NOT_FOUND);

@@ -65,8 +65,8 @@ class WeatherService
                 ],
             ]);
 
-            // (Facultatif) Délai simulé pour prouver l’appel API en soutenance
-            sleep(5); // ⚠️ À retirer en production
+            // Délai simulé pour prouver l’appel API pendant la soutenance
+            sleep(5); // À retirer si production car ralentissement inutile
 
             return $response->toArray();
         });

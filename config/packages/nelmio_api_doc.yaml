@@ -1,22 +1,22 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: EcoGarden & Co API            # ✅ Titre affiché dans la doc Swagger
-            version: 1.0.0                       # ✅ Version de l'API
-            description: Documentation de l'API EcoGarden # ✅ Brève description de ton projet
+            title: EcoGarden & Co API            # Titre affiché dans la doc Swagger
+            version: 1.0.0                       # Version de l'API
+            description: Documentation de l'API EcoGarden # Brève description de ton projet
 
         components:
             securitySchemes:
-                bearerAuth:                      # 🔐 Nom du mécanisme de sécurité utilisé
-                    type: http                   # ✅ Type HTTP
-                    scheme: bearer               # ✅ Utilisation du schéma "Bearer"
-                    bearerFormat: JWT            # ✅ Format du token utilisé (JWT)
+                bearerAuth:                      #  Nom du mécanisme de sécurité utilisé
+                    type: http                   #  Type HTTP
+                    scheme: bearer               #  Utilisation du schéma "Bearer"
+                    bearerFormat: JWT            #  Format du token utilisé (JWT)
 
         paths:
             /api/auth:
-                post:                            # ✅ Méthode HTTP POST pour se connecter
-                    tags: [Authentification]     # ✅ Catégorie affichée dans la doc Swagger
-                    summary: Obtenir un token JWT # ✅ Résumé rapide
+                post:                            #  Méthode HTTP POST pour se connecter
+                    tags: [Authentification]     #  Catégorie affichée dans la doc Swagger
+                    summary: Obtenir un token JWT #  Résumé rapide
                     requestBody:
                         description: Authentification par email et mot de passe. Aucun champ n'est validé ici par Symfony. (Seul un email existant et un mot de passe correct permettront de générer un token.)
                         required: true
@@ -29,7 +29,7 @@ nelmio_api_doc:
                                             type: string
                                         password:
                                             type: string
-                                examples:        # ✅ Exemples concrets pour Swagger UI
+                                examples:        #  Exemples concrets pour Swagger UI
                                     Utilisateur simple:
                                         summary: Login utilisateur
                                         value:
@@ -49,7 +49,7 @@ nelmio_api_doc:
                                         type: object
                                         properties:
                                             token:
-                                                type: string
+                                               example: "jeSuisUnTokenEnFormatString"
                         '400':
                             description: Demande mal formulée
                         '401':
@@ -60,4 +60,4 @@ nelmio_api_doc:
     areas:
         default:
             path_patterns:
-                - ^/api(?!/doc$)                 # ✅ Ne documente que les routes qui commencent par /api, sauf /api/doc
+                - ^/api(?!/doc$)                 #  Ne documente que les routes qui commencent par /api, sauf /api/doc
