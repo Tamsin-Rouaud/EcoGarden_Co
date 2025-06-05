@@ -73,7 +73,7 @@ class AdviceController extends AbstractController
         $em->flush();
 
         $jsonAdvice = $serializer->serialize($advice, 'json', ['groups' => 'getAdvices']);
-        $location = $urlGenerator->generate('detailAdvice', ['id' => $advice->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $location = $urlGenerator->generate('createAdvice', ['id' => $advice->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return new JsonResponse($jsonAdvice, Response::HTTP_CREATED, ['Location' => $location], true);
     }
