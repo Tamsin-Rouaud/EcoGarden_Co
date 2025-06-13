@@ -86,7 +86,7 @@ class WeatherController extends AbstractController
         ]
     )]
     #[Route('/{ville}', name: 'get_weather_by_city', methods: ['GET'])]
-public function getWeather(?string $ville = null, WeatherService $weatherService)
+public function getWeather(WeatherService $weatherService, ?string $ville = null)
 : JsonResponse
     {
         $weather = $weatherService->getWeatherByCity($ville);
