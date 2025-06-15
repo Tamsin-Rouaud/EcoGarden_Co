@@ -39,7 +39,9 @@ class UserController extends AbstractController
         responses: [
             new OA\Response(response: 201, description: 'Utilisateur créé'),
             new OA\Response(response: 400, description: 'Erreur de validation'),
-            new OA\Response(response: 409, description: 'Email déjà utilisé')
+            new OA\Response(response: 409, description: 'Email déjà utilisé'),
+             new OA\Response(response: 500, description: 'Erreur serveur'),
+
         ]
     )]
     #[Route('', name: 'createUser', methods: ['POST'])]
@@ -72,7 +74,14 @@ class UserController extends AbstractController
 
     /** Liste tous les utilisateurs — accessible uniquement aux administrateurs. */
     #[IsGranted('ROLE_ADMIN')]
-    #[OA\Get( summary: 'Lister tous les utilisateurs', security: [['bearerAuth' => []]], tags: ['Utilisateur'], responses: [ new OA\Response(response: 200, description: 'Liste des utilisateurs'), new OA\Response(response: 403, description: 'Accès refusé')] )]
+    #[OA\Get( summary: 'Lister tous les utilisateurs', security: [['bearerAuth' => []]], tags: ['Utilisateur'], responses: [
+        new OA\Response(response: 200, description: 'Liste des utilisateurs'), 
+        new OA\Response(response: 401, description: 'Non authentifié'),
+        new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
+        new OA\Response(response: 500, description: 'Erreur serveur'),
+
+         
+         ] )]
     #[Route('', name: 'get_all_users', methods: ['GET'])]
     public function getAllUsers( UserRepository $userRepository, SerializerInterface $serializer ): JsonResponse {
         $users = $userRepository->findAll();
@@ -101,10 +110,15 @@ class UserController extends AbstractController
             )
         ),
         responses: [
-            new OA\Response(response: 200, description: 'Utilisateur mis à jour'),
-            new OA\Response(response: 400, description: 'Erreur de validation'),
+            new OA\Response(response: 204, description: 'Utilisateur mis à jour'),
+            new OA\Response(response: 400, description:'Erreur de validation'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
             new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
-            new OA\Response(response: 404, description: 'Utilisateur non trouvé')
+            new OA\Response(response: 404, description: 'Utilisateurs inexistant ou mal  orthographié'),
+            
+            
+             new OA\Response(response: 500, description: 'Erreur serveur'),
+
         ]
     )]
     public function updateUser(int $id, Request $request, UserRepository $userRepository, EntityManagerInterface $em, SerializerInterface $serializer, ValidatorInterface $validator, UserPasswordHasherInterface $passwordHasher): JsonResponse
@@ -152,9 +166,13 @@ class UserController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 204, description: 'Utilisateur supprimé'),
-            new OA\Response(response: 400, description: 'Erreur de validation'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
             new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
-            new OA\Response(response: 404, description: 'Utilisateur non trouvé')
+            new OA\Response(response: 404, description: 'Utilisateur non trouvé inexistant ou mal  orthographié'),
+            
+
+             new OA\Response(response: 500, description: 'Erreur serveur'),
+
         ]
     )]
     public function deleteUser(int $id, UserRepository $userRepository, EntityManagerInterface $em): JsonResponse

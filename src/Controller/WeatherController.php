@@ -22,9 +22,7 @@ class WeatherController extends AbstractController
 {
     /**
      * Récupère la météo pour la ville de l'utilisateur actuellement connecté.
-     * La ville doit être renseignée dans le champ "city" de son profil.
-     * Exemple de réponse : température, humidité, vent, etc.
-     */
+    */
     #[OA\Get(
         path: '/api/meteo',
         summary: 'Récupère la météo pour la ville de l’utilisateur connecté',
@@ -34,9 +32,11 @@ class WeatherController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Météo actuelle pour la ville de l’utilisateur'),
-            new OA\Response(response: 400, description: 'Demande mal formulée'),
+           
             new OA\Response(response: 401, description: 'Utilisateur non authentifié'),
-            new OA\Response(response: 404, description: 'Ville non trouvée ou météo indisponible')
+            new OA\Response(response: 404, description: 'Ville non trouvée ou météo indisponible'),
+            new OA\Response(response: 500, description: 'Erreur serveur'),
+
         ]
     )]
 
@@ -80,9 +80,11 @@ class WeatherController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Météo actuelle pour la ville spécifiée' ),
-            new OA\Response(response: 400, description: 'Demande mal formulée'),
+            
             new OA\Response(response: 401, description: 'Utilisateur non authentifié'),
-            new OA\Response(response: 404, description: 'Ville non trouvée ou météo indisponible')
+            new OA\Response(response: 404, description: 'Ville non trouvée ou météo indisponible'),
+             new OA\Response(response: 500, description: 'Erreur serveur'),
+
         ]
     )]
     #[Route('/{ville}', name: 'get_weather_by_city', methods: ['GET'])]

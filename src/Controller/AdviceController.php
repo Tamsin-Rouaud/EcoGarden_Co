@@ -50,6 +50,7 @@ class AdviceController extends AbstractController
             new OA\Response(response: 400, description: 'Erreur de validation'),
             new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
             new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 500, description: 'Erreur serveur'),
         ]
     )]
     #[Route('', name: 'createAdvice', methods: ['POST'])]
@@ -87,7 +88,8 @@ class AdviceController extends AbstractController
         tags: ['Conseil'],
         responses: [
             new OA\Response(response: 200, description: 'Liste de conseils du mois courant'),
-            new OA\Response(response: 401, description: 'Non authentifié')
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 500, description: 'Erreur serveur'),
         ]
     )]
     #[Route('', name: 'advices', methods: ['GET'])]
@@ -112,8 +114,9 @@ class AdviceController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'Conseils du mois'),
-            new OA\Response(response: 400, description: 'Mois invalide'),
+            new OA\Response(response: 404, description: 'Le mois demandé est introuvable ou ne contient aucun conseil.'),
             new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 500, description: 'Erreur serveur'),
         ]
     )]
     #[Route('/{mois}', name: 'getAdviceByMonth', requirements: ['mois' => '\d+'], methods: ['GET'])]
@@ -154,8 +157,10 @@ class AdviceController extends AbstractController
         responses: [
             new OA\Response(response: 204, description: 'Conseil mis à jour'),
             new OA\Response(response: 400, description: 'Erreur de validation'),
-            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
             new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
+            new OA\Response(response: 404, description: 'Ressource non trouvée'),
+            new OA\Response(response: 500, description: 'Erreur serveur'),
         ]
     )]
     #[Route('/{id}', name: 'updateAdvice', methods: ['PUT'])]
@@ -193,9 +198,10 @@ class AdviceController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 204, description: 'Conseil supprimé'),
-            new OA\Response(response: 400, description: 'Erreur de validation'),
-            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
             new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 403, description: 'Accès refusé : réservé aux administrateurs'),
+            new OA\Response(response: 404, description: 'Id non trouvée ou invalide'),
+            new OA\Response(response: 500, description: 'Erreur serveur'),
         ]
     )]
     #[Route('/{id}', name: 'deleteAdvice', methods: ['DELETE'])]

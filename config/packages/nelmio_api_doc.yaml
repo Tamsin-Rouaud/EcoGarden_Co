@@ -41,7 +41,7 @@ nelmio_api_doc:
                                             email: admin@example.com
                                             password: adminpass
                     responses:
-                        '200':
+                        '200--':
                             description: Retourne un token JWT
                             content:
                                 application/json:
@@ -54,8 +54,9 @@ nelmio_api_doc:
                             description: Demande mal formulée
                         '401':
                             description: Identifiants invalides
-                        '404':
-                            description: Utilisateur non trouvé
+                        '500':
+                            description: Erreur du serveur
+                      
 
     areas:
         default:
